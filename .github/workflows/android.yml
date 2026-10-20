@@ -15,19 +15,22 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Baixar e instalar Gradle 8.0 manualmente
-      run: |
-        wget https://services.gradle.org/distributions/gradle-8.0-bin.zip -O gradle.zip
-        unzip -q gradle.zip
-        echo "$PWD/gradle-8.0/bin" >> $GITHUB_PATH
+    - name: Configurar Android SDK
+      uses: android-actions/setup-android@v3
 
-    - name: Gerar Wrapper e Compilar APK
+    - name: Compilar o APK
       run: |
-        # Gera o script gradlew na versão 8.0
-        gradle wrapper --gradle-version 8.0
-        # Compila o projeto usando o wrapper gerado
-        chmod +x gradlew
-        ./gradlew assembleDebug
+        if [ -f "gradlew" ]; then
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+        else
+          wget -q https://services.gradle.org/distributions/gradle-8.0-bin.zip
+          unzip -q gradle-8.0-bin.zip
+          export PATH=$PATH:$PWD/gradle-8.0/bin
+          gradle wrapper --gradle-version 8.0
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+        fi
 
     - name: Salvar o APK
       uses: actions/upload-artifact@v4
