@@ -8,19 +8,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    
     - name: Configurar Java (JDK 17)
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: 'gradle'
+
     - name: Compilar o APK
       run: |
-        if [ -f "gradlew" ]; then
-          chmod +x gradlew
-          ./gradlew assembleDebug
-        else
-          gradle assembleDebug
-        fi
+        # Gera o wrapper do Gradle na versão 8.0 (compatível com o projeto)
+        gradle wrapper --gradle-version 8.0
+        # Compila usando o wrapper gerado
+        ./gradlew assembleDebug
+
     - name: Salvar o APK
       uses: actions/upload-artifact@v4
       with:
