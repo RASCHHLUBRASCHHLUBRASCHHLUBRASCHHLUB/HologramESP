@@ -14,14 +14,22 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: 'gradle'
+
+    - name: Configurar Gradle 8.0 (Versão Compatível)
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: 8.0
 
     - name: Compilar o APK
       run: |
-        # Gera o wrapper do Gradle na versão 8.0 (compatível com o projeto)
-        gradle wrapper --gradle-version 8.0
-        # Compila usando o wrapper gerado
-        ./gradlew assembleDebug
+        # Se o script gradlew existir, usa ele. 
+        # Se não, usa o comando 'gradle' que agora está forçado na versão 8.0
+        if [ -f "gradlew" ]; then
+          chmod +x gradlew
+          ./gradlew assembleDebug
+        else
+          gradle assembleDebug
+        fi
 
     - name: Salvar o APK
       uses: actions/upload-artifact@v4
